@@ -2,11 +2,11 @@
 Simple game on python about cosmos, with async python.
 
 # CONTROLS
-`UP` - move up,
-`DOWN` - move down
-`LEFT` - move left
-`RIGHT` - move right
-`SPACE` - shoot
+`UP` - move up   
+`DOWN` - move down   
+`LEFT` - move left   
+`RIGHT` - move right   
+`SPACE` - shoot   
 
 # GAME SCENARIO
 Based on the idea from the video Trash and satellites around the Earth. 
