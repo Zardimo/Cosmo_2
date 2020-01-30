@@ -18,8 +18,8 @@ year = 1957
 
 
 class GameOver(Exception):
-	def __init__(self):
-		pass
+    def GameOver(self):
+        super()
 
 
 async def count_years():
@@ -43,8 +43,9 @@ async def output_event(sub_canvas, row_length, column_length):
 
 
 async def show_gameover(canvas, row_center, column_center):
-    game_over_frame = get_frame(os.path.join(os.getcwd(),
-         '/Cosmo/rocket_animation/game_over.txt'))
+    game_over_path = os.path.join(os.getcwd(),
+         'Cosmo_2', 'rocket_animation', 'game_over.txt')
+    game_over_frame = get_frame(game_over_path)
     frame_row, frame_column = get_frame_size(game_over_frame)
     row_center = row_center - frame_row/2
     column_center = column_center - frame_column/2
@@ -83,7 +84,6 @@ async def fire(canvas, start_row, start_column, rows_speed=-0.3, columns_speed=0
         for obstacle in obstacles:
             if obstacle.has_collision(row, column):
                 obstacles_in_last_collisions.append(obstacle)
-                obstacles.remove(obstacle)
                 return None
         canvas.addstr(round(row), round(column), symbol)
         await asyncio.sleep(0)
@@ -106,11 +106,12 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
     frame_row, frame_column = get_frame_size(garbage_frame)
     center_column = column + frame_column/2
     obstacle = Obstacle(row, column, frame_row, frame_column, 
-    	uid=f'garbage_{row}')
+        uid=f'garbage_{row}')
     obstacles.append(obstacle)
     while row < rows_number:
         if obstacle in obstacles_in_last_collisions:
             center_row = row + frame_row/2
+            obstacles.remove(obstacle)
             coroutines.append(explode(canvas, center_row, center_column))
             return None
         draw_frame(canvas, row, column, garbage_frame)
@@ -161,12 +162,12 @@ async def sleep(tics=1):
         await asyncio.sleep(0)
 
 
-def get_border(edge, frame, edge_length):
-    if edge+frame+1 > edge_length:
-        edge = edge_length-frame-1
-    elif edge < 1:
-        edge = 1
-    return edge
+def get_border(border, frame, side_length):
+    if border+frame+1 > side_length:
+        border = side_length-frame-1
+    elif border < 1:
+        border = 1
+    return border
 
 
 async def run_spaceship(canvas, row_length, column_length, both_edge):
@@ -196,19 +197,19 @@ async def run_spaceship(canvas, row_length, column_length, both_edge):
         column += column_speed
         column = get_border(column, frame_column, column_length)
         draw_frame(canvas, row, column, spaceship_frame)
-        last_sh_frame = spaceship_frame
+        last_spaceship_frame_frame = spaceship_frame
         await asyncio.sleep(0)
-        draw_frame(canvas, row, column, last_sh_frame, negative=True)
+        draw_frame(canvas, row, column, last_spaceship_frame_frame, negative=True)
 
 
 async def animate_spaceship():
     global spaceship_frame
-    rocket_frame_1 = get_frame(os.path.join(
-                                os.getcwd(),
-                                 '/Cosmo/rocket_animation/rocket_frame_1.txt'))
-    rocket_frame_2 = get_frame(os.path.join(
-                                os.getcwd(),
-                                 '/Cosmo/rocket_animation/rocket_frame_2.txt'))
+    rocket_frame_1_path = os.path.join(os.getcwd(),
+                         'Cosmo_2', 'rocket_animation', 'rocket_frame_1.txt')
+    rocket_frame_2_path = os.path.join(os.getcwd(),
+                         'Cosmo_2', 'rocket_animation', 'rocket_frame_2.txt')
+    rocket_frame_1 = get_frame(rocket_frame_1_path)
+    rocket_frame_2 = get_frame(rocket_frame_2_path)
     frames = [rocket_frame_1, rocket_frame_2]
     while True:
         for frame in frames:
@@ -217,10 +218,14 @@ async def animate_spaceship():
 
 
 def main(canvas):
-    all_garbage = os.listdir('/Cosmo/frames_garbages')
+    all_garbage_path = os.path.join(os.getcwd(),
+                         'Cosmo_2', 'frames_garbages')
+    all_garbage = os.listdir(all_garbage_path)
     garbages = []
     for garbage in all_garbage:
-        garbages.append(get_frame(f'/Cosmo/frames_garbages/{garbage}'))
+        garbage_path = os.path.join(os.getcwd(),
+                         'Cosmo_2', 'frames_garbages', garbage)
+        garbages.append(get_frame(garbage_path))
     coroutines_garbages = []
     row_length, column_length = canvas.getmaxyx()
     symbols = '+*.:'
@@ -256,7 +261,7 @@ def main(canvas):
             except StopIteration:
                 coroutines.remove(coroutine)
             except GameOver:
-            	return
+                return
         sub_canvas.refresh()
         canvas.refresh()
         time.sleep(0.1)
