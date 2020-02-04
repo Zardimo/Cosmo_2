@@ -18,8 +18,8 @@ year = 1957
 
 
 class GameOver(Exception):
-    def GameOver(self):
-        super()
+    def __init__(self):
+        super().__init__()
 
 
 async def count_years():
@@ -43,9 +43,7 @@ async def output_event(sub_canvas, row_length, column_length):
 
 
 async def show_gameover(canvas, row_center, column_center):
-    game_over_path = os.path.join(os.getcwd(),
-         'Cosmo_2', 'rocket_animation', 'game_over.txt')
-    game_over_frame = get_frame(game_over_path)
+    game_over_frame = get_frame('./rocket_animation/game_over.txt')
     frame_row, frame_column = get_frame_size(game_over_frame)
     row_center = row_center - frame_row/2
     column_center = column_center - frame_column/2
@@ -162,12 +160,12 @@ async def sleep(tics=1):
         await asyncio.sleep(0)
 
 
-def get_border(border, frame, side_length):
-    if border+frame+1 > side_length:
-        border = side_length-frame-1
-    elif border < 1:
-        border = 1
-    return border
+def check_border(spaceship_coordinate, frame, side_length):
+    if spaceship_coordinate+frame+1 > side_length:
+        spaceship_coordinate = side_length-frame-1
+    elif spaceship_coordinate < 1:
+        spaceship_coordinate = 1
+    return spaceship_coordinate
 
 
 async def run_spaceship(canvas, row_length, column_length, both_edge):
@@ -192,10 +190,10 @@ async def run_spaceship(canvas, row_length, column_length, both_edge):
             coroutines.append(fire(canvas, row, column+2))
 
         row += row_speed
-        row = get_border(row, frame_row, row_length)
+        row = check_border(row, frame_row, row_length)
 
         column += column_speed
-        column = get_border(column, frame_column, column_length)
+        column = check_border(column, frame_column, column_length)
         draw_frame(canvas, row, column, spaceship_frame)
         last_spaceship_frame_frame = spaceship_frame
         await asyncio.sleep(0)
@@ -204,12 +202,8 @@ async def run_spaceship(canvas, row_length, column_length, both_edge):
 
 async def animate_spaceship():
     global spaceship_frame
-    rocket_frame_1_path = os.path.join(os.getcwd(),
-                         'Cosmo_2', 'rocket_animation', 'rocket_frame_1.txt')
-    rocket_frame_2_path = os.path.join(os.getcwd(),
-                         'Cosmo_2', 'rocket_animation', 'rocket_frame_2.txt')
-    rocket_frame_1 = get_frame(rocket_frame_1_path)
-    rocket_frame_2 = get_frame(rocket_frame_2_path)
+    rocket_frame_1 = get_frame('./rocket_animation/rocket_frame_1.txt')
+    rocket_frame_2 = get_frame('./rocket_animation/rocket_frame_2.txt')
     frames = [rocket_frame_1, rocket_frame_2]
     while True:
         for frame in frames:
@@ -218,13 +212,10 @@ async def animate_spaceship():
 
 
 def main(canvas):
-    all_garbage_path = os.path.join(os.getcwd(),
-                         'Cosmo_2', 'frames_garbages')
-    all_garbage = os.listdir(all_garbage_path)
+    all_garbage = os.listdir('./frames_garbages')
     garbages = []
     for garbage in all_garbage:
-        garbage_path = os.path.join(os.getcwd(),
-                         'Cosmo_2', 'frames_garbages', garbage)
+        garbage_path = os.path.join(f'./frames_garbages/{garbage}')
         garbages.append(get_frame(garbage_path))
     coroutines_garbages = []
     row_length, column_length = canvas.getmaxyx()
