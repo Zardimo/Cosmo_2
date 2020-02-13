@@ -20,6 +20,7 @@ year = 1957
 class GameOver(Exception):
     def __init__(self):
         super().__init__()
+        pass
 
 
 async def count_years():
@@ -111,6 +112,7 @@ async def fly_garbage(canvas, column, garbage_frame, speed=0.5):
             center_row = row + frame_row/2
             obstacles.remove(obstacle)
             coroutines.append(explode(canvas, center_row, center_column))
+            obstacles_in_last_collisions.remove(obstacle)
             return None
         draw_frame(canvas, row, column, garbage_frame)
         obstacle.row = row
@@ -156,11 +158,11 @@ async def fill_orbit_with_garbage(canvas, column_length, garbages):
 
 
 async def sleep(tics=1):
-    for tic in range(tics, 0, -1):
+    for tic in range(tics):
         await asyncio.sleep(0)
 
 
-def check_border(spaceship_coordinate, frame, side_length):
+def limit_frame_position(spaceship_coordinate, frame, side_length):
     if spaceship_coordinate+frame+1 > side_length:
         spaceship_coordinate = side_length-frame-1
     elif spaceship_coordinate < 1:
@@ -190,10 +192,10 @@ async def run_spaceship(canvas, row_length, column_length, both_edge):
             coroutines.append(fire(canvas, row, column+2))
 
         row += row_speed
-        row = check_border(row, frame_row, row_length)
+        row = limit_frame_position(row, frame_row, row_length)
 
         column += column_speed
-        column = check_border(column, frame_column, column_length)
+        column = limit_frame_position(column, frame_column, column_length)
         draw_frame(canvas, row, column, spaceship_frame)
         last_spaceship_frame_frame = spaceship_frame
         await asyncio.sleep(0)
